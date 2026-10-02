@@ -11,9 +11,12 @@ Let users click a visible Agents task row in fullscreen mode to open the existin
 - Implementation branch: `feat/clickable-agents-card`, created after fork issue approval from `7a27c1c008b3922b851da5efb78e4ca4dae6e6b1` before source writes. Fork issue: https://github.com/carlose119/gentle-pi/issues/1.
 
 ## Tasks
-- [ ] T1 — Enable fork Issues, publish the reviewed feature issue, and obtain explicit verified approval.
+- [x] T1 — Enable fork Issues, publish the reviewed feature issue, and obtain explicit verified approval.
   Route: parent handles bounded GitHub administration/publication; explorer maps forms/policy (mandatory mapping trigger).
   Checks: exact repository readback, completed open-and-closed duplicate search, reviewed YAML-form answers, privacy scan, exact issue readback, approval authority and label readback. Close with a tracking work-unit commit on the feature branch after approval.
+- [ ] T5 — Resolve the local test-runner prerequisite without unrelated source or fork changes.
+  Route: bounded delegated setup worker; user explicitly authorized declared local dependency installation. Only generated `node_modules/**` may change (including scoped npm/pnpm caches there). Do not change source, manifests/lockfiles, global Pi, or fork branches. Inspect symlinks before writing to avoid escaping local scope.
+  Checks: verify declared dependency versions/resolution, reproduce exact baseline failure, establish deterministic focused baseline readiness, preserve manifests/lockfiles/branch/fork, report any remaining limitations. Close with tracking/config work-unit commit after outcome observed.
 - [ ] T2 — Implement fullscreen click-to-details as one coherent behavior work unit with regression tests.
   Route: one gentle-ai-worker (mandatory multi-file writer trigger); self-verification, native review according to the user-owned switch, and ASSESS-directed independent verification as needed.
   Checks: observed RED/GREEN/refactor; task row hit geometry, non-task and overflow exclusions, initial selection, keyboard/default behavior, resize-stale geometry, live thread identity, focused suite and applicable full suite/build. Close with a Conventional Commit containing behavior, tests, and applicable docs.
@@ -31,6 +34,7 @@ Let users click a visible Agents task row in fullscreen mode to open the existin
 - `tests/agents-widget.test.ts`
 - `tests/agents-view.test.ts`
 - `tests/gentle-agents.test.ts`
+- `docs/gentle-shell.md` (concise fullscreen click instructions only)
 
 Existing `tests/agents-view-thread-identity.test.ts` is an important regression check, not currently an authorized edit surface. Expand only when mapping justifies it. Documentation changes remain conditional on actual user-facing instructions.
 
@@ -47,8 +51,10 @@ Existing `tests/agents-view-thread-identity.test.ts` is an important regression 
 - Corrected stdin invocation first emitted no_write at private-temp-setup: Get-Acl/Set-Acl were unavailable. Read-only follow-up `murb91qo-3-i3jp` verified .NET ACL methods. Final invocation used secure DirectoryInfo.Create(DirectorySecurity), explicit FileSecurity on five files, and validated protected owner-only FullControl permissions before writing body-bearing data; cleanup completed without error. No installation or privacy weakening.
 - First actual gh issue create succeeded: https://github.com/carlose119/gentle-pi/issues/1, OPEN; exact title/body/identity/state/labels readback matched confirmed draft. Outcome confirmed.
 - User explicitly approved exact fork issue 1. Fresh principal carlose119 and ADMIN permission verified; one atomic approval operation added `status:approved`, removed `status:needs-review`, preserved `enhancement`, and exact pre/post readback confirmed. Private snapshots cleaned. No upstream approval claimed.
-- T1 checks: setting/form/hash/duplicate/private ACL/privacy/exact publication/atomic approval checks passed. Tests/build/native review are not applicable to this administrative plus passive tracking work unit; no meaningful RED exists. Tracking commit still pending.
-- No test, build, manual fullscreen, or native review result has been observed. Node/pnpm/dependency readiness still needs verification.
+- T1 complete: setting/form/hash/duplicate/private ACL/privacy/exact publication/atomic approval checks passed; tracking work-unit commit `cd1ae762b0f0c48ad33145d8a793c0d1646ffb48` observed on the feature branch. Tests/build/native review are not applicable to this administrative plus passive tracking unit; no meaningful RED exists.
+- T2 paused/pending: completed writer made no edits; test-runner prerequisite must resolve before focused RED/production implementation/GREEN/refactor/full checks. T5 is in progress; user explicitly authorized bounded declared local dependency setup with no global installation or source/manifest/lockfile/branch changes.
+- Writer `murbk6k8-4-97fj` finished partial after parent pause; files_changed `[]`. Runtime: node v22.23.2; pnpm command not found. Focused baseline: 51 tests passed, 1 module-load failure because installed `@earendil-works/pi-tui` does not export existing `colorToRgb` import. This is pre-existing; no RED/GREEN/refactor or behavior candidate exists. Full suite/build/manual fullscreen/native review not run.
+- Read-only verifier `murbm7r2-5-867y` resolved ancestry: fork main `1f345106ff2931383451d4e05ec76d1259471884` is five commits ahead of feature baseline `7a27c1c008b3922b851da5efb78e4ca4dae6e6b1`, with zero unrelated baseline diff files in prospective fork PR. No fork synchronization demonstrated necessary; preserve both branches. RDD freshly on (global), clone-local unset.
 
 ## Verification commands
 Focused candidate command from exploration:
@@ -57,4 +63,4 @@ Focused candidate command from exploration:
 Full suite uses `scripts/run-test-suite.mjs`; verify package scripts/runtime before running. Never claim suite/build success from source inspection.
 
 ## Next step
-Close T1 with the authorized passive tracking work-unit commit, record commit evidence, then start one bounded T2 writer with test-first and exact allowed surfaces. T1 administrative checks passed; commit pending. T2–T4 remain pending. Mirror: `odd/clickable-agents-card/tasks`.
+Bounded T5 setup worker `murbv9cn-6-iu59` is running with generated node_modules-only surfaces and exact install/focused-check commands. Preserve declared versions, manifests/lockfiles, global Pi, and both branches; stop if wider changes are needed. T5 in progress; T2 paused/pending with no source edits; T1 complete; T3–T4 pending. Mirror: `odd/clickable-agents-card/tasks`.
