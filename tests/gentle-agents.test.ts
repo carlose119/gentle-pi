@@ -221,7 +221,9 @@ function fakeContext(tui: { requestRender(): void } = fakeTui, confirmResult: (t
 		const factory = widgets.get("gentle-agents");
 		return factory ? factory(tui, plainTheme).render(72).map(stripAnsi) : undefined;
 	};
-	return { ctx, widget, dialogs, overlays, customCompletions, customOptions };
+	return { ctx, widget, dialogs, overlays, customCompletions, customOptions,
+		widgetComponent: () => widgets.get("gentle-agents")?.(tui, plainTheme) as Overlay | undefined,
+	};
 }
 
 // Records deps.schedule calls so a test fires exactly the timers it means to;
@@ -3252,6 +3254,59 @@ test("a task-mode child's dialog reaches the host UI and the answer goes back to
 	assert.deepEqual(await answerThroughUi(ctx.ui, { id: "u3", method: "input", title: "Name" }, {}), { cancelled: true });
 	assert.deepEqual(await answerThroughUi(ctx.ui, { id: "u4", method: "editor", title: "Edit" }, {}), { value: "edited" });
 	assert.deepEqual(await answerThroughUi(undefined, { id: "u5", method: "select", title: "x" }, {}), { cancelled: true });
+});
+
+test("fullscreen Agents card opens the clicked live task and rejects stale or non-task input", async (t) => {
+	let store: TaskStore | undefined;
+	const list = TaskStore.prototype.list;
+	t.mock.method(TaskStore.prototype, "list", function (this: TaskStore) { store = this; return list.call(this); });
+	const { pi, tools, fire } = fakePi();
+	const runtime = deps();
+	gentleAgents(pi, {}, runtime.deps);
+	const tui = { mode: "fullscreen", terminal: { rows: 30 }, requestRender() {} };
+	const { ctx, widgetComponent, overlays } = fakeContext(tui);
+	await fire("session_start", ctx);
+	for (const label of ["first click target", "second click target"]) {
+		await tools.get("subagent_run")!.execute(label, { agent: "explore", task: label, label, mode: "background" }, undefined, undefined, ctx);
+		await tick();
+	}
+	const card = widgetComponent();
+	assert.ok(card);
+	let lines = card.render(100).map(stripAnsi);
+	const y = lines.findIndex((line) => line.includes("second click target"));
+	assert.ok(y > 0);
+	const click = (x: number, row: number, width = 100, height = lines.length, button = "left") => card.handleMouse?.(mouse("click", button as "left", x, row, width, height));
+	assert.equal(click(0, y), undefined, "frame is inert");
+	assert.equal(click(4, 0), undefined, "header is inert");
+	assert.equal(click(4, lines.length - 1), undefined, "widget spacer is inert");
+	assert.equal(click(4, y, 99), undefined, "mismatched width is inert");
+	assert.equal(click(4, y, 100, lines.length - 1), undefined, "mismatched height is inert");
+	assert.equal(click(4, y, 100, lines.length, "right"), undefined);
+	tui.mode = "regular";
+	assert.equal(click(4, y), undefined, "normal mode preserves terminal mouse ownership");
+	tui.mode = "fullscreen";
+	tui.terminal.rows = 31;
+	assert.equal(click(4, y), undefined, "unrendered resize is inert even when row budget is unchanged");
+	lines = card.render(100).map(stripAnsi);
+	assert.equal((click(4, y) as { handled?: boolean })?.handled, true);
+	assert.equal(overlays.length, 1, "widget event mounts the production overlay");
+	const overlay = overlays[0];
+	overlay.render(100);
+	runtime.children[0].emit({ type: "message_update", assistantMessageEvent: { type: "text_delta", delta: "unselected first output" } });
+	runtime.children[1].emit({ type: "message_update", assistantMessageEvent: { type: "text_delta", delta: "clicked live output" } });
+	await tick();
+	assert.match(overlay.render(100).map(stripAnsi).join("\n"), /clicked live output/);
+	assert.doesNotMatch(overlay.render(100).map(stripAnsi).join("\n"), /unselected first output/, "exact clicked identity owns the live subscription");
+	overlay.handleInput("q");
+	await tick();
+	assert.ok(store);
+	const removed = store.list().find((task) => task.label === "second click target");
+	assert.ok(removed);
+	store.update(removed.id, { status: TASK_STATUS.COMPLETED, endedAt: -100_000 });
+	assert.equal(click(4, y), undefined, "expired task cannot activate its stale row");
+	assert.equal(overlays.length, 1);
+	await fire("session_shutdown", ctx, { reason: "quit" });
+	assert.equal(click(4, y), undefined, "disposed session cannot reopen details");
 });
 
 test("AgentsView production composition observes each pointer event once and accepts only left clicks", async () => {

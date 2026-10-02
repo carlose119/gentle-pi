@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test, { after, before, type TestContext } from "node:test";
 import { visibleWidth } from "@earendil-works/pi-tui";
 import { TASK_STATUS, type TaskRecord } from "../lib/agents-protocol.ts";
-import { formatElapsed, renderAgentsCard, widgetExpiryMs, widgetRows, widgetTasks } from "../lib/agents-widget.ts";
+import { formatElapsed, renderAgentsCard, renderAgentsCardFrame, widgetExpiryMs, widgetRows, widgetTasks } from "../lib/agents-widget.ts";
 import { CARD_STYLE, cardStyle, setCardStyle, type CardStyle } from "../lib/shell-card.ts";
 import { stripAnsi } from "../lib/terminal-theme.ts";
 
@@ -11,6 +11,24 @@ import { stripAnsi } from "../lib/terminal-theme.ts";
 // Layout: glyph, agent, task summary (wrapped), then model · tokens · cost · time.
 
 const plainTheme = { fg: (_color: string, text: string) => text };
+
+test("task hit rows follow rendered priority, overflow and float chrome", (t) => {
+	const tasks = [task({ id: "first" }), task({ id: "question", status: TASK_STATUS.WAITING }), task({ id: "hidden" })];
+	for (const style of [CARD_STYLE.NEON, CARD_STYLE.FLOAT]) {
+		useCardStyle(t, style);
+		const theme = withBackground(plainTheme);
+		const frame = renderAgentsCardFrame(tasks, theme, 72, 2000, { collapsed: false, maxRows: style === CARD_STYLE.FLOAT ? 4 : 2 });
+		assert.deepEqual(frame.tasks.map((hit) => hit.taskId), ["question"]);
+		const hit = frame.tasks[0];
+		assert.equal(hit.y, style === CARD_STYLE.FLOAT ? 3 : 1);
+		assert.equal(hit.x, style === CARD_STYLE.FLOAT ? 3 : 2);
+		assert.match(stripAnsi(frame.lines[hit.y]), /\?/);
+		assert.ok(!frame.tasks.some((row) => /more/.test(stripAnsi(frame.lines[row.y]))));
+	}
+	assert.deepEqual(renderAgentsCardFrame(tasks, plainTheme, 3, 2000, { collapsed: false }).tasks, []);
+	const overflow = renderAgentsCardFrame(tasks, withBackground(plainTheme), 72, 2000, { collapsed: false, maxRows: 3 });
+	assert.deepEqual(overflow.tasks, [], "overflow-only float cards expose no task hit");
+});
 
 // The card style defaults to float; these assertions pin the outlined (neon)
 // panels unless a test switches the style itself.

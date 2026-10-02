@@ -42,6 +42,27 @@ function clickLabel(view: AgentsView, label: string, width = 60): void {
 	assert.equal(view.handleMouse(mouse(x, y, width, frame.length, "click"))?.handled, true);
 }
 
+test("initial task identity selects its live thread without changing default selection", () => {
+	const store = new TaskStore();
+	store.add(task("a"));
+	store.add(task("b"));
+	store.apply("b", { type: TASK_EVENT.TEXT, text: "chosen live thread" }, 2000);
+	const create = (initialTaskId?: string) => new AgentsView({
+		theme: plainTheme, rows: 8, store, sessionId: "s", initialTaskId,
+		now: () => 3000, onCancel() {}, onOpen() {}, onClose() {}, requestRender() {},
+	});
+	const chosen = create("b");
+	assert.equal(chosen.selectedTask()?.id, "b");
+	assert.match(chosen.render(40).join("\n"), /chosen live thread/);
+	store.apply("b", { type: TASK_EVENT.TEXT, text: " updated" }, 3000);
+	assert.match(chosen.render(80).join("\n"), /updated/);
+	const fallback = create("gone");
+	const normal = create();
+	assert.equal(fallback.selectedTask()?.id, "a");
+	assert.equal(normal.selectedTask()?.id, "a");
+	for (const view of [chosen, fallback, normal]) view.dispose();
+});
+
 test("narrow navigation enters a direct child, retains manual thread position, and Escape backs out", () => {
 	const { store, view, events } = harness(8);
 	store.add(task("a"));

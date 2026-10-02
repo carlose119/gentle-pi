@@ -1,4 +1,4 @@
-import { visibleWidth } from "@earendil-works/pi-tui";
+import { visibleWidth, wrapTextWithAnsi } from "@earendil-works/pi-tui";
 import { isFinished, TASK_STATUS, type TaskRecord, type TaskStatus } from "./agents-protocol.ts";
 import { formatCost, formatTokens } from "./shell-bar.ts";
 import { CARD_TONE, panelExtraRows, panelInnerWidth, renderCard, type CardTheme, type CardTone } from "./shell-card.ts";
@@ -297,9 +297,19 @@ function batchElapsed(tasks: readonly TaskRecord[], now: number): string | undef
 	return formatElapsed(end - Math.min(...starts));
 }
 
+export interface AgentsCardFrame {
+	lines: string[];
+	tasks: Array<{ taskId: string; x: number; y: number; width: number }>;
+}
+
 export function renderAgentsCard(tasks: readonly TaskRecord[], theme: CardTheme, width: number, now: number, options: AgentsWidgetOptions): string[] {
+	return renderAgentsCardFrame(tasks, theme, width, now, options).lines;
+}
+
+/** Task hits are emitted alongside the body, never inferred from store order. */
+export function renderAgentsCardFrame(tasks: readonly TaskRecord[], theme: CardTheme, width: number, now: number, options: AgentsWidgetOptions): AgentsCardFrame {
 	const shown = widgetTasks(tasks, now);
-	if (shown.length === 0) return [];
+	if (shown.length === 0) return { lines: [], tasks: [] };
 	const cols = columns(shown, panelInnerWidth(theme, width, tone(shown)), now);
 	// The float panel spends two more rows on padding above its header and the
 	// separator below it, so it gives them back from the task budget to stay as
@@ -308,12 +318,26 @@ export function renderAgentsCard(tasks: readonly TaskRecord[], theme: CardTheme,
 	const maxRows = options.maxRows === undefined ? undefined : options.maxRows - extraRows;
 	const { listed, hidden } = options.collapsed ? { listed: [shown[0]], hidden: 0 } : visibleRows(shown, maxRows, extraRows > 0);
 	const hint = options.collapsed && options.collapseKey ? `${options.collapseKey} expand` : shown.length > 1 ? batchElapsed(shown, now) : undefined;
-	const body = listed.flatMap((task) => row(task, theme, cols, now, options.maxRows === undefined));
+	const body: string[] = [];
+	const hits: AgentsCardFrame["tasks"] = [];
+	let y = 1 + extraRows;
+	const x = extraRows > 0 ? 3 : 2;
+	for (const task of listed) {
+		for (const text of row(task, theme, cols, now, options.maxRows === undefined)) {
+			body.push(text);
+			// Match the panel's actual wrapping; narrow chrome-only cards have no hits.
+			for (const line of wrapTextWithAnsi(text, cols.inner)) {
+				if (width > x * 2 && visibleWidth(line) > 0) hits.push({ taskId: task.id, x, y, width: Math.min(cols.inner, visibleWidth(line)) });
+				y += 1;
+			}
+		}
+	}
 	if (hidden > 0) body.push(overflowRow(hidden, theme, options.viewKey));
-	return renderCard(
+	const lines = renderCard(
 		{ title: "Agents", subtitle: counts(shown), body, tone: tone(shown), glyph: AGENTS_GLYPH },
 		theme,
 		width,
 		{ expanded: true, hint, panel: true },
 	);
+	return { lines, tasks: hits };
 }
