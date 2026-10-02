@@ -29,6 +29,8 @@ export interface AgentsViewDeps {
 	rows: number | (() => number);
 	store: TaskStore;
 	sessionId?: string;
+	/** One-shot entry selection; absent or missing IDs retain the default fallback. */
+	initialTaskId?: string;
 	presence?: { profile: string; target?: Readonly<Target> };
 	now(): number;
 	onCancel(task: TaskRecord): void;
@@ -294,7 +296,9 @@ export class AgentsView {
 			onLeave: () => this.clearHoveredControl("mode"),
 			onClick: (event) => this.clickMode(event),
 		});
+		this.selectedId = deps.initialTaskId ? `task:${deps.initialTaskId}` : undefined;
 		this.refreshTasks();
+		if (deps.initialTaskId && this.selectedTask()?.id === deps.initialTaskId) this.narrowView = "details";
 		this.unsubscribeSummary = deps.store.subscribeSummary(() => {
 			this.clearFooterLayout();
 			this.refreshTasks();

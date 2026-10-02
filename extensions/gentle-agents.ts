@@ -13,7 +13,7 @@ import os from "node:os";
 import { join, resolve, isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
 import { keyHint, type ExtensionAPI, type ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { Text, type TUI } from "@earendil-works/pi-tui";
+import { Text, type TUI, type TuiMouseEvent } from "@earendil-works/pi-tui";
 import { invalidateSidebar } from "../lib/shell-sidebar-layout.ts";
 import { VISUAL_SETTINGS_CHANGED } from "../lib/shell-sidebar.ts";
 import { resolveVisualSettings } from "../lib/visual-customization-policy.ts";
@@ -37,7 +37,7 @@ import { PresencePublisher } from "../lib/orchestrator-presence.ts";
 import { createRpcActivityPublisher, type RpcActivityPublisher } from "../lib/agents-rpc-publisher.ts";
 import { isInteractiveRpcHost } from "../lib/rpc-host.ts";
 import { createNativeFullscreenInteraction } from "../lib/native-fullscreen-interaction.ts";
-import { AGENTS_GLYPH, renderAgentsCard, widgetExpiryMs, widgetRows } from "../lib/agents-widget.ts";
+import { AGENTS_GLYPH, renderAgentsCardFrame, widgetExpiryMs, widgetRows } from "../lib/agents-widget.ts";
 import { CARD_TONE, renderCard } from "../lib/shell-card.ts";
 import { openInExternalEditor } from "./gentle-shell.ts";
 import { resolveGentlePiAgentHome, gentlePiConfigHome } from "../lib/agent-home.ts";
@@ -1078,7 +1078,7 @@ export default function gentleAgents(pi: ExtensionAPI, env: NodeJS.ProcessEnv = 
 		} catch { /* Partial history is acceptable; the live session keeps running. */ }
 	};
 
-	const openOverlay = async (ctx: ExtensionContext) => {
+	const openOverlay = async (ctx: ExtensionContext, initialTaskId?: string) => {
 		if (!ctx.hasUI) return;
 		if (ctx.mode !== "tui") {
 			ctx.ui.notify("The agents overlay requires TUI mode.", "warning");
@@ -1095,6 +1095,7 @@ export default function gentleAgents(pi: ExtensionAPI, env: NodeJS.ProcessEnv = 
 					rows: () => Math.max(0, tui.terminal.rows),
 					store,
 					sessionId: ctx.sessionManager.getSessionId() ?? "",
+					initialTaskId,
 					presence: {
 						profile: agentHome,
 						get target() { return presence?.target; },
@@ -1172,13 +1173,36 @@ export default function gentleAgents(pi: ExtensionAPI, env: NodeJS.ProcessEnv = 
 		ui?.setWidget(AGENTS_WIDGET_KEY, (tui, theme) => {
 			host = tui;
 			sidebarTui = tui;
+			const sessionId = ctx.sessionManager.getSessionId();
+			const current = () => sessions === ctx.sessionManager && sessions.getSessionId() === sessionId && agentsVisible;
+			const frame = (width: number) => renderAgentsCardFrame(visibleTasks(), theme, width, deps.now(), { collapsed, collapseKey, maxRows: widgetRows(tui.terminal?.rows), viewKey });
+			let rendered: { width: number; height: number; rows: number | undefined; tasks: ReturnType<typeof frame>["tasks"] } | undefined;
+			let opening = false;
 			return {
 				render(width: number) {
-					if (!agentsVisible) return [];
-					const lines = renderAgentsCard(visibleTasks(), theme, width, deps.now(), { collapsed, collapseKey, maxRows: widgetRows(tui.terminal?.rows), viewKey });
-					return lines.length === 0 ? [] : [...lines, ""];
+					rendered = undefined;
+					if (!current()) return [];
+					const { lines, tasks } = frame(width);
+					if (lines.length === 0) return [];
+					rendered = { width, height: lines.length + 1, rows: tui.terminal?.rows, tasks };
+					return [...lines, ""];
 				},
-				invalidate() {},
+				handleMouse(event: TuiMouseEvent) {
+					// Regular mode belongs to terminal selection and scrollback, not this card.
+					if (tui.mode !== "fullscreen" || !current() || opening || event.type !== "click" || event.button !== "left") return undefined;
+					const saved = rendered;
+					if (!saved || event.width !== saved.width || event.height !== saved.height || tui.terminal?.rows !== saved.rows) return undefined;
+					const live = frame(event.width);
+					if (live.lines.length + 1 !== saved.height || JSON.stringify(live.tasks) !== JSON.stringify(saved.tasks)) return undefined;
+					const hit = saved.tasks.find((task) => task.y === event.y && event.x >= task.x && event.x < task.x + task.width);
+					if (!hit || !visibleTasks().some((task) => task.id === hit.taskId)) return undefined;
+					opening = true;
+					void openOverlay(ctx, hit.taskId).catch((error) => {
+						if (current()) ctx.ui.notify(`Could not open Agents: ${error instanceof Error ? error.message : String(error)}`, "warning");
+					}).finally(() => { opening = false; });
+					return { handled: true };
+				},
+				invalidate() { rendered = undefined; },
 			};
 		});
 	};
