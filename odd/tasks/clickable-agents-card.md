@@ -20,12 +20,16 @@ Let users click a visible Agents task row in fullscreen mode to open the existin
 - [ ] T2 — Implement fullscreen click-to-details as one coherent behavior work unit with regression tests.
   Route: one gentle-ai-worker (mandatory multi-file writer trigger); self-verification, native review according to the user-owned switch, and ASSESS-directed independent verification as needed.
   Checks: observed RED/GREEN/refactor; task row hit geometry, non-task and overflow exclusions, initial selection, keyboard/default behavior, resize-stale geometry, live thread identity, focused suite and applicable full suite/build. Close with a Conventional Commit containing behavior, tests, and applicable docs.
-- [ ] T3 — Publish a fork-local PR from the feature branch to fork main.
+- [ ] T3 — Publish an explicitly authorized draft fork-local PR from the feature branch to fork main, with failed and pending verification disclosed.
   Route: parent publishes under explicit authorization; delegate expensive verification when needed.
-  Checks: approved fork issue linked, exactly one existing type label, truthful checks, base/head/target readback, review-size assessment. Record URL and work-unit evidence.
+  Checks: approved fork issue linked, exactly one existing type label, explicit draft state, truthful failed/pending checks, base/head/target readback, review-size assessment. Record URL and work-unit evidence. No merge or upstream PR authorized.
 - [ ] T4 — Comment on upstream issue 1655 with the verified fork PR link and test results.
   Route: parent contextual publication under explicit authorization.
   Checks: target issue identity, privacy scan, one comment attempt, exact comment readback; do not modify upstream labels. Record comment URL and work-unit evidence.
+
+- [ ] T6 — Complete global and real-terminal verification before merge readiness.
+  Route: future explicitly scoped verification or available fork CI; no automatic fixes to unrelated Windows fixtures or global configuration.
+  Checks: complete full-runner disposition in a suitable environment, unresolved failure/cancellation accounting, actual fullscreen functional check. Draft publication does not satisfy or waive these checks.
 
 ## Implementation surfaces
 - `lib/agents-widget.ts`
@@ -73,7 +77,14 @@ Focused candidate command from exploration:
 Full suite uses `scripts/run-test-suite.mjs`; verify package scripts/runtime before running. Never claim suite/build success from source inspection.
 
 ## Next step
-Await settled cancellation/full-check disposition from `murfkclz-b-yijx`. Source is checkpointed and native review closed; do not mark T2 complete or publish while required verification remains unresolved. No unrelated fixes or forced full-suite success. T5/T1 complete; T2 in progress/partial; T3–T4 pending. Mirror: `odd/clickable-agents-card/tasks`.
+User explicitly authorized draft publication despite partial global verification: push this branch to carlose119/gentle-pi, create draft PR to fork main, then reference it on upstream 1655 with limitations. T3 in progress; T2 remains pending/partial, not fully verified; T6 tracks merge-readiness checks. T1/T5 complete, T4 pending. No merge, upstream PR, unrelated fixes, or blanket green claim. Mirror: `odd/clickable-agents-card/tasks`.
+
+## Draft publication disposition
+- Final palette preview check failed on an unchanged source-palette path, outside all modified Agents code; Windows URL-path portability supported, exact caught exception unexposed.
+- Feature evidence stands: core 53/53, filtered production 3/3, type ratchet 187 baseline diagnostics/no regressions, eight runtime modules match, isolated SDK 1/1. Native source review approved and acknowledged; source checkpoint `84ec2468946abcbdfc347831fc258391fc19adc4`.
+- Global verification remains partial: full runner timed out at 600 seconds; incomplete log has 141 failed and 58 cancelled records, not final totals, with incomplete attribution. Real-terminal fullscreen behavior unverified.
+- Reviewed metadata checkpoint `cc14ed1cacb7fbeea8f9012d67daf3f543183d6e`; its exact tracking review target 574d9c5a was acknowledged and authority burned. This does not waive global checks.
+- Fresh host readback confirms carlose119 ADMIN, fork main unchanged, fork issue 1 OPEN with enhancement/status:approved, existing type:feature label. Upstream issue 1655 OPEN/unlocked/comments zero. No publication mutation performed yet.
 
 ## Known pre-existing Windows baseline failures
 The combined command fails on these 23 exact tests in `tests/gentle-agents.test.ts` BEFORE any feature edit. Never call the combined suite green; only these matched base failures may be excepted from candidate regression accounting. Any new failure remains blocking.
