@@ -16,7 +16,7 @@ Let users click a visible Agents task row in fullscreen mode to open the existin
   Checks: exact repository readback, completed open-and-closed duplicate search, reviewed YAML-form answers, privacy scan, exact issue readback, approval authority and label readback. Close with a tracking work-unit commit on the feature branch after approval.
 - [ ] T5 — Resolve the local test-runner prerequisite without unrelated source or fork changes.
   Route: bounded delegated setup worker; user explicitly authorized declared local dependency installation. Only generated `node_modules/**` may change (including scoped npm/pnpm caches there). Do not change source, manifests/lockfiles, global Pi, or fork branches. Inspect symlinks before writing to avoid escaping local scope.
-  Checks: verify declared dependency versions/resolution, reproduce exact baseline failure, establish deterministic focused baseline readiness, preserve manifests/lockfiles/branch/fork, report any remaining limitations. Close with tracking/config work-unit commit after outcome observed.
+  Checks: verify locked installation/resolution, preserve manifests/lockfiles/branch/fork, establish runnable core/UI baseline and exact attribution of any base-only failures. A passing combined suite is not claimed; exact pre-existing failures are documented and excluded only from candidate regression accounting, not hidden or fixed. Close with a tracking/config work-unit commit after observed installation/core/ledger evidence.
 - [ ] T2 — Implement fullscreen click-to-details as one coherent behavior work unit with regression tests.
   Route: one gentle-ai-worker (mandatory multi-file writer trigger); self-verification, native review according to the user-owned switch, and ASSESS-directed independent verification as needed.
   Checks: observed RED/GREEN/refactor; task row hit geometry, non-task and overflow exclusions, initial selection, keyboard/default behavior, resize-stale geometry, live thread identity, focused suite and applicable full suite/build. Close with a Conventional Commit containing behavior, tests, and applicable docs.
@@ -52,8 +52,13 @@ Existing `tests/agents-view-thread-identity.test.ts` is an important regression 
 - First actual gh issue create succeeded: https://github.com/carlose119/gentle-pi/issues/1, OPEN; exact title/body/identity/state/labels readback matched confirmed draft. Outcome confirmed.
 - User explicitly approved exact fork issue 1. Fresh principal carlose119 and ADMIN permission verified; one atomic approval operation added `status:approved`, removed `status:needs-review`, preserved `enhancement`, and exact pre/post readback confirmed. Private snapshots cleaned. No upstream approval claimed.
 - T1 complete: setting/form/hash/duplicate/private ACL/privacy/exact publication/atomic approval checks passed; tracking work-unit commit `cd1ae762b0f0c48ad33145d8a793c0d1646ffb48` observed on the feature branch. Tests/build/native review are not applicable to this administrative plus passive tracking unit; no meaningful RED exists.
-- T2 paused/pending: completed writer made no edits; test-runner prerequisite must resolve before focused RED/production implementation/GREEN/refactor/full checks. T5 is in progress; user explicitly authorized bounded declared local dependency setup with no global installation or source/manifest/lockfile/branch changes.
+- T2 ready to resume after T5 tracking commit: local locked dependencies installed, core/UI checks runnable, exact base failures diagnosed. T5 installation/verification outcome observed; commit still pending. No feature edits or feature RED/GREEN yet.
 - Writer `murbk6k8-4-97fj` finished partial after parent pause; files_changed `[]`. Runtime: node v22.23.2; pnpm command not found. Focused baseline: 51 tests passed, 1 module-load failure because installed `@earendil-works/pi-tui` does not export existing `colorToRgb` import. This is pre-existing; no RED/GREEN/refactor or behavior candidate exists. Full suite/build/manual fullscreen/native review not run.
+- T5 setup worker `murbv9cn-6-iu59` finished interaction_required: pnpm11.1.1 downloaded into local npm cache, but installation stopped with `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`. Existing Pi tui/ai/coding-agent0.85.1 remain; lock selects1.0.0 and colorToRgb remains undefined. No baseline rerun after failed install. Node_modules local/no escaping symlinks; manifest/lock hashes unchanged (`8cb0b729826fb4070f4e69497e89aa7bca324995`, `e4d9a3c843b923536edcb4c40d0f69a18741f232`). No source/global changes.
+- User explicitly authorized child envelope's exact `CI=true` scoped installer retry. Setup worker `murdgfbk-7-cyqo` completed partial: locked installation passed (187 packages), local Pi packages now 1.0.0 and colorToRgb is a function; only generated dependencies/caches changed, with no escaping symlinks or manifest/lock changes. Focused baseline now ran 223 tests: 200 passed, 23 assertion failures (2 diff-relay, 5 mutation-attribution, 1 spawn-environment, 15 writer-admission). Root causes remain unverified; no feature edits or feature RED/GREEN.
+- Settled independent verifier `murds7bk-8-rpo1`: combined 223 total, 200 pass/23 fail, exit 1; independent core 51/51, exit 0; existing production pointer composition/footer tests pass. Integrity cleared: parent-owned tracking update only, source/tests/manifests unchanged. Seven slash-prefix stub failures and sixteen ancestor-repository fixture failures have source/diagnostic support; no counterfactual fixture edits or safety variable changes were performed. Feature TDD can run meaningfully without unrelated fixes.
+- Tracking review d79b80c3 approved/acknowledged: lineage `review-67955e9935fdc950`, consumed revision `sha256:c45f1baf0a8350ccaced91b5f848bef7f4d25511bfa3de243026191c11f2665c`; authority burned. This covers prior six-line tracking slice only, not later evidence updates or future behavior.
+- Tracking-only native review for prior exact target `sha256:98d342987ee082bae81c6bf8225f8fd4dd500046ba0a02f553138dc3fbc61e96` approved/acknowledged; lineage `review-fea899ba76e3a95b`, consumed revision `sha256:5c0b49ad60ec185d3d81a817c0e6374402413a5a016b6e5a6f1757c84cad516c`, authority burned. That prior tracking slice committed as `a3baea6ab4eb13fae7f2f875023c47d0c857f5c2`; it does not review later tracking edits or future behavior.
 - Read-only verifier `murbm7r2-5-867y` resolved ancestry: fork main `1f345106ff2931383451d4e05ec76d1259471884` is five commits ahead of feature baseline `7a27c1c008b3922b851da5efb78e4ca4dae6e6b1`, with zero unrelated baseline diff files in prospective fork PR. No fork synchronization demonstrated necessary; preserve both branches. RDD freshly on (global), clone-local unset.
 
 ## Verification commands
@@ -63,4 +68,36 @@ Focused candidate command from exploration:
 Full suite uses `scripts/run-test-suite.mjs`; verify package scripts/runtime before running. Never claim suite/build success from source inspection.
 
 ## Next step
-Bounded T5 setup worker `murbv9cn-6-iu59` is running with generated node_modules-only surfaces and exact install/focused-check commands. Preserve declared versions, manifests/lockfiles, global Pi, and both branches; stop if wider changes are needed. T5 in progress; T2 paused/pending with no source edits; T1 complete; T3–T4 pending. Mirror: `odd/clickable-agents-card/tasks`.
+Close T5 with the authorized tracking work-unit commit and record its identity, then resume one T2 writer with exact known base failure ledger and feature-focused RED/GREEN/refactor. Preserve source scope, manifests/lockfiles, global Pi, and fork branches; no fixture or ancestor-repo fixes. T5 observed outcome ready/commit pending; T2 pending; T1 complete; T3–T4 pending. Mirror: `odd/clickable-agents-card/tasks`.
+
+## Known pre-existing Windows baseline failures
+The combined command fails on these 23 exact tests in `tests/gentle-agents.test.ts` BEFORE any feature edit. Never call the combined suite green; only these matched base failures may be excepted from candidate regression accounting. Any new failure remains blocking.
+
+Slash-prefix fake resolvers (Windows backslash descendants fail forward-slash containment; baseline lines 1518,1868,1902,1939,1975,2010):
+- owned child diff relay validates the exact file independently of review bookkeeping: true
+- owned child diff relay validates the exact file independently of review bookkeeping: false
+- a mutation dropped for lacking any session-change evidence explains itself once
+- a mutation dropped for evidence pointing at a different worktree root explains itself once
+- a mutation dropped for an unreadable evidence target explains itself once
+- a mutation dropped for mismatched session-change evidence explains itself once
+- a successfully attributed mutation adds no drop note
+
+Nominal non-Git temporary fixtures enclosed by an ancestor repository:
+- default Node spawn adapter distinguishes IPC-only and permission-capable canonical Git children
+- bounded writer executor admission before bootstrap: implicit-worker
+- bounded writer executor admission before bootstrap: explicit-worker
+- bounded writer executor admission before bootstrap: implicit-gentle-ai-worker
+- bounded writer executor admission before bootstrap: explicit-gentle-ai-worker
+- bounded writer executor admission before bootstrap: model
+- bounded writer executor admission before bootstrap: profile-model
+- bounded writer executor admission before bootstrap: profile-valid
+- bounded writer executor admission before bootstrap: foreign
+- bounded writer executor admission before bootstrap: nested
+- bounded writer executor admission before bootstrap: missing
+- bounded writer executor admission before bootstrap: off
+- bounded writer executor admission before bootstrap: shutdown
+- bounded writer executor admission before bootstrap: replacement
+- bounded writer executor admission before bootstrap: changed-id
+- bounded writer executor admission before bootstrap: during-cancel
+
+No source fixes or ancestor-repository changes authorized. Existing production pointer/footer checks and core baseline pass. Real-terminal fullscreen behavior remains unverified.
